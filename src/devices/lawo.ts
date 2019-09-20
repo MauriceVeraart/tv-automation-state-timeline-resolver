@@ -404,7 +404,7 @@ export class LawoDevice extends DeviceWithState<TimelineState> {
 		try {
 			if (command.key === 'Fader/Motor dB Value') {	// fader level
 
-				if (command.transitionDuration && command.transitionDuration > 0) {	// with timed fader movement
+				if (command.transitionDuration && command.transitionDuration >= 500) {	// with timed fader movement
 					try {
 						const res = await this._lawo.invokeFunction(
 							new Ember.QualifiedFunction(this._rampMotorFunctionPath),
@@ -426,6 +426,14 @@ export class LawoDevice extends DeviceWithState<TimelineState> {
 				} else { // withouth timed fader movement
 					try {
 						const node: any = await this._getNodeByPath(command.path)
+
+						if (node && node.contents.value === command.value) {
+							this.emit('debug', `Ember property "${command.path}" is already at "${command.value}`)
+							return
+						}
+						if (typeof command.value === 'number' && command.value % 0 === 0) {
+							command.value += 0.01
+						}
 
 						const res = await this._lawo.setValue(node, new Ember.ParameterContents(command.value, 'real'))
 
