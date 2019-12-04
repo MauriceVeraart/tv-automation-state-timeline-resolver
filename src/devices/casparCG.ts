@@ -717,6 +717,7 @@ export class CasparCGDevice extends DeviceWithState<TimelineState> implements ID
 			if (this._queue[resCommand.token]) {
 				delete this._queue[resCommand.token]
 			}
+			this.emit('AMCPresponse', cmd.response)
 		}).catch((error) => {
 			let errorString = ''
 			if (error && error.response && error.response.code === 404) {
